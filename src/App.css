@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap');
+
+/* Root Variables for Easy Theming */
+:root {
+  --primary-color: #000000;
+  --secondary-color: #ffffff;
+  --box-shadow-size: 5px;
+  --hover-translate: -2px;
+  --hover-shadow-size: 7px;
+}
+
+/* Global Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Neu-Brutal Styling */
+.neu-brutal {
+  box-shadow: var(--box-shadow-size) var(--box-shadow-size) 0 0 var(--primary-color);
+  border: 3px solid var(--primary-color);
+  transition: all 0.2s ease;
+}
+
+.neu-brutal:hover {
+  transform: translate(var(--hover-translate), var(--hover-translate));
+  box-shadow: var(--hover-shadow-size) var(--hover-shadow-size) 0 0 var(--primary-color);
+}
+
+/* Loading Animation */
+.loading {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Accessibility for Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .loading {
+    animation: none;
+  }
+}
+
+/* Responsive Neu-Brutal Styling */
+@media (max-width: 768px) {
+  .neu-brutal {
+    box-shadow: 3px 3px 0 0 var(--primary-color);
+    border: 2px solid var(--primary-color);
+  }
+}
