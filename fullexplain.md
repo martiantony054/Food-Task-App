@@ -7,7 +7,7 @@ This project is a simple React-based application that allows users to filter foo
 - **Category Filter**: Allows users to filter food products based on categories fetched from the Open Food Facts API.
 - **Sort Options**: Provides options to sort the products by product name, nutrition score, or nutrition grade in ascending or descending order.
 - **Loading State**: Displays a loading indicator while fetching categories and products.
-- **Responsive Design**: The app is built to be fully responsive, providing a good user experience across devices.
+- **Responsive Design**: The app is built to be fully responsive, providing a good user experience across devices.    
 
 ## Tech Stack
 
