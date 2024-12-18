@@ -1,4 +1,4 @@
-# Food Product Filter and Sort
+# Food Explorer Project
 
 This project is a simple React-based application that allows users to filter food products by category and sort them based on different criteria such as product name, nutrition score, and nutrition grade. It fetches data from the [Open Food Facts API](https://world.openfoodfacts.org/) and displays the products accordingly.
 
