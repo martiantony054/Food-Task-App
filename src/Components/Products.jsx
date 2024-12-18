@@ -15,103 +15,44 @@ function Products() {
   const navigate = useNavigate();
 
   useEffect(() => {
+
     const fetchProducts = async () => {
       setIsLoading(true);
-  
-      // Determine if the search term is a barcode or a name
-      const isBarcode = /^\d+$/.test(searchTerm) && searchTerm.length >= 8; // Adjust length as needed for your barcodes
-  
-      // API endpoint: Use appropriate search parameters for barcode or name
-      let url;
-      if (isBarcode) {
-        url = `https://world.openfoodfacts.org/api/v0/product/${searchTerm}.json`; // For barcode search
-      } else {
-        url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(
-          searchTerm
-        )}&json=true`; // For name search
-      }
-  
+      const isBarcode = /^\d+$/.test(searchTerm) && searchTerm.length >= 8;
+      const url = isBarcode
+        ? `https://world.openfoodfacts.org/api/v0/product/${searchTerm}.json`
+        : `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(searchTerm)}&json=true`;
+
       try {
         const response = await fetch(url);
         const data = await response.json();
-  
-        // Handle API response structure
-        if (isBarcode) {
-          setProducts(data.status === 1 ? [data.product] : []); // Barcode returns a single product
-        } else {
-          setProducts(data.products || []); // Name search returns a list
-        }
-      } catch (error) {
-        console.error("Error fetching products:", error);
-        setProducts([]); // Clear products on error
+        setProducts(isBarcode ? (data.status === 1 ? [data.product] : []) : data.products || []);
+      } catch {
+        setProducts([]);
       } finally {
         setIsLoading(false);
       }
     };
-  
-    if (searchTerm) {
-      fetchProducts();
-    }
+
+    fetchProducts();
   }, [searchTerm]);
-  
 
-  const sortedProducts = products.slice().sort((a, b) => {
-    let aValue, bValue;
-
-    if (sortCriteria === "product_name") {
-      aValue = a.product_name?.toLowerCase() || "";
-      bValue = b.product_name?.toLowerCase() || "";
-    } else if (sortCriteria === "nutrition_grades") {
-      aValue = a.nutrition_grades || "Z";
-      bValue = b.nutrition_grades || "Z";
-    }
-
-    if (sortOrder === "asc") {
-      return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-    } else {
-      return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
-    }
+  const sortedProducts = [...products].sort((a, b) => {
+    const aValue = (sortCriteria === "product_name" ? a.product_name : a.nutrition_grades) || "";
+    const bValue = (sortCriteria === "product_name" ? b.product_name : b.nutrition_grades) || "";
+    return sortOrder === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
   });
 
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = sortedProducts.slice(
-    indexOfFirstProduct,
-    indexOfLastProduct
+    (currentPage - 1) * productsPerPage,
+    currentPage * productsPerPage
   );
-
-  const handleProductClick = (product) => {
-    navigate("/productdetails", { state: { product } });
-  };
-
-  const handleNextPage = () => {
-    if (currentPage < Math.ceil(products.length / productsPerPage)) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  const handleSortCriteriaChange = (value) => {
-    setSortCriteria(value);
-    setSortOrder("asc");
-  };
-
-  const toggleSortOrder = () => {
-    setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
-  };
 
   return (
     <div className="bg-blue-100 min-h-screen translate-y-28">
       <header className="bg-white neu-brutal m-4 p-8">
         <h1 className="text-4xl font-bold mb-4">Fresh Food Facts</h1>
-        <p className="text-xl">
-          Discover nutritional information about your favorite foods!
-        </p>
+        <p className="text-xl">Discover nutritional information about your favorite foods!</p>
       </header>
 
       <div className="m-4">
@@ -124,8 +65,8 @@ function Products() {
         <Sort
           sortCriteria={sortCriteria}
           sortOrder={sortOrder}
-          onCriteriaChange={handleSortCriteriaChange}
-          onToggleOrder={toggleSortOrder}
+          onCriteriaChange={setSortCriteria}
+          onToggleOrder={() => setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))}
         />
       </div>
 
@@ -140,7 +81,7 @@ function Products() {
               <Card
                 key={index}
                 className="neu-brutal"
-                onClick={() => handleProductClick(product)}
+                onClick={() => navigate("/productdetails", { state: { product } })}
               >
                 <CardBody className="p-4">
                   <img
@@ -161,10 +102,9 @@ function Products() {
                     <div className="bg-yellow-100 p-2 neu-brutal">
                       <strong>Nutrient Grade/Score</strong>
                       <br />
-                      <p className="font-bold text-sm">Grade:</p>
-                      {product.nutrition_grades || "N/A"}
-                      <p className="font-bold text-sm">Score:</p>
-                      {product.nutriscore_score || "N/A"}
+                      Grade: {product.nutrition_grades || "N/A"}
+                      <br />
+                      Score: {product.nutriscore_score || "N/A"}
                     </div>
                   </div>
                 </CardBody>
@@ -178,7 +118,7 @@ function Products() {
 
       <div className="flex justify-center items-center mt-4">
         <button
-          onClick={handlePreviousPage}
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
           className="p-2 bg-blue-500 text-white rounded-l"
           disabled={currentPage === 1}
         >
@@ -188,11 +128,13 @@ function Products() {
           Page {currentPage} of {Math.ceil(products.length / productsPerPage)}
         </span>
         <button
-          onClick={handleNextPage}
-          className="p-2 bg-blue-500 text-white rounded-r"
-          disabled={
-            currentPage === Math.ceil(products.length / productsPerPage)
+          onClick={() =>
+            setCurrentPage((prev) =>
+              Math.min(prev + 1, Math.ceil(products.length / productsPerPage))
+            )
           }
+          className="p-2 bg-blue-500 text-white rounded-r"
+          disabled={currentPage === Math.ceil(products.length / productsPerPage)}
         >
           Next
         </button>
