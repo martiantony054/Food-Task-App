@@ -1,8 +1,24 @@
-# React + Vite
+# Food Product Filter and Sort
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is a simple React-based application that allows users to filter food products by category and sort them based on different criteria such as product name, nutrition score, and nutrition grade. It fetches data from the [Open Food Facts API](https://world.openfoodfacts.org/) and displays the products accordingly.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Category Filter**: Allows users to filter food products based on categories fetched from the Open Food Facts API.
+- **Sort Options**: Provides options to sort the products by product name, nutrition score, or nutrition grade in ascending or descending order.
+- **Loading State**: Displays a loading indicator while fetching categories and products.
+- **Responsive Design**: The app is built to be fully responsive, providing a good user experience across devices.
+
+## Tech Stack
+
+- **Frontend**: React, Tailwind CSS (for styling), Material Tailwind (for select dropdown)
+- **API**: Open Food Facts API
+
+## Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone 
+   cd <project-directory>
+
