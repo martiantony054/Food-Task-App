@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { Card, CardBody, Input } from "@material-tailwind/react";
+import Sort from "./Sort";
 
 function Products() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -9,15 +10,16 @@ function Products() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage] = useState(6);
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [sortCriteria, setSortCriteria] = useState("product_name");
   const navigate = useNavigate();
 
-  // Fetch products based on search term or category
   useEffect(() => {
     const fetchProducts = async () => {
       setIsLoading(true);
-      let url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(searchTerm)}&json=true`;
-
-      // If category is selected, fetch products by category
+      let url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(
+        searchTerm
+      )}&json=true`;
 
       try {
         const response = await fetch(url);
@@ -31,15 +33,36 @@ function Products() {
     };
 
     fetchProducts();
-  }, [searchTerm]); // Fetch on searchTerm or category change
+  }, [searchTerm]);
+
+  const sortedProducts = products.slice().sort((a, b) => {
+    let aValue, bValue;
+
+    if (sortCriteria === "product_name") {
+      aValue = a.product_name?.toLowerCase() || "";
+      bValue = b.product_name?.toLowerCase() || "";
+    } else if (sortCriteria === "nutrition_grades") {
+      aValue = a.nutrition_grades || "Z";
+      bValue = b.nutrition_grades || "Z";
+    }
+
+    if (sortOrder === "asc") {
+      return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+    } else {
+      return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+    }
+  });
+
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = sortedProducts.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
 
   const handleProductClick = (product) => {
     navigate("/productdetails", { state: { product } });
   };
-
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
 
   const handleNextPage = () => {
     if (currentPage < Math.ceil(products.length / productsPerPage)) {
@@ -53,8 +76,17 @@ function Products() {
     }
   };
 
+  const handleSortCriteriaChange = (value) => {
+    setSortCriteria(value);
+    setSortOrder("asc");
+  };
+
+  const toggleSortOrder = () => {
+    setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
+  };
+
   return (
-    <div className="bg-blue-100 min-h-screen">
+    <div className="bg-blue-100 min-h-screen translate-y-28">
       <header className="bg-white neu-brutal m-4 p-8">
         <h1 className="text-4xl font-bold mb-4">Fresh Food Facts</h1>
         <p className="text-xl">
@@ -62,14 +94,18 @@ function Products() {
         </p>
       </header>
 
-     
-
-      <div className="m-4 bg-yellow-100">
+      <div className="m-4">
         <Input
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search for food products..."
           className="neu-brutal bg-yellow-100"
+        />
+        <Sort
+          sortCriteria={sortCriteria}
+          sortOrder={sortOrder}
+          onCriteriaChange={handleSortCriteriaChange}
+          onToggleOrder={toggleSortOrder}
         />
       </div>
 
@@ -106,7 +142,7 @@ function Products() {
                       <strong>Nutrient Grade/Score</strong>
                       <br />
                       <p className="font-bold text-sm">Grade:</p>
-                      {product.nutriscore_grade || "N/A"}
+                      {product.nutrition_grades || "N/A"}
                       <p className="font-bold text-sm">Score:</p>
                       {product.nutriscore_score || "N/A"}
                     </div>
@@ -120,7 +156,6 @@ function Products() {
         </div>
       )}
 
-      {/* Pagination Controls */}
       <div className="flex justify-center items-center mt-4">
         <button
           onClick={handlePreviousPage}
@@ -135,7 +170,9 @@ function Products() {
         <button
           onClick={handleNextPage}
           className="p-2 bg-blue-500 text-white rounded-r"
-          disabled={currentPage === Math.ceil(products.length / productsPerPage)}
+          disabled={
+            currentPage === Math.ceil(products.length / productsPerPage)
+          }
         >
           Next
         </button>

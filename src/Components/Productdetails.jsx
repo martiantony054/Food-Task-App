@@ -32,7 +32,7 @@ function ProductDetails() {
     );
   }
   return (
-    <div className="bg-blue-100 min-h-screen p-8">
+    <div className="bg-blue-100 min-h-screen p-8 translate-y-28">
       <button
         onClick={() => navigate(-1)}
         className="mb-4 px-4 py-2 bg-blue-500 text-white rounded"

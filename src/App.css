@@ -24,10 +24,7 @@
   transition: all 0.2s ease;
 }
 
-.neu-brutal:hover {
-  transform: translate(var(--hover-translate), var(--hover-translate));
-  box-shadow: var(--hover-shadow-size) var(--hover-shadow-size) 0 0 var(--primary-color);
-}
+
 
 /* Loading Animation */
 .loading {

@@ -51,7 +51,7 @@ function Category() {
       <div className="m-4 bg-yellow-100">
         <select
           onChange={(e) => setSelectedCategory(e.target.value)}
-          className="neu-brutal p-2 bg-yellow-100"
+          className="neu-brutal p-2 bg-yellow-100 w-full"
         >
           <option value="">Select Category</option>
           {categories.length > 0 ? (
