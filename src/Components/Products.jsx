@@ -17,23 +17,43 @@ function Products() {
   useEffect(() => {
     const fetchProducts = async () => {
       setIsLoading(true);
-      let url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(
-        searchTerm
-      )}&json=true`;
-
+  
+      // Determine if the search term is a barcode or a name
+      const isBarcode = /^\d+$/.test(searchTerm) && searchTerm.length >= 8; // Adjust length as needed for your barcodes
+  
+      // API endpoint: Use appropriate search parameters for barcode or name
+      let url;
+      if (isBarcode) {
+        url = `https://world.openfoodfacts.org/api/v0/product/${searchTerm}.json`; // For barcode search
+      } else {
+        url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(
+          searchTerm
+        )}&json=true`; // For name search
+      }
+  
       try {
         const response = await fetch(url);
         const data = await response.json();
-        setProducts(data.products || []);
+  
+        // Handle API response structure
+        if (isBarcode) {
+          setProducts(data.status === 1 ? [data.product] : []); // Barcode returns a single product
+        } else {
+          setProducts(data.products || []); // Name search returns a list
+        }
       } catch (error) {
         console.error("Error fetching products:", error);
+        setProducts([]); // Clear products on error
       } finally {
         setIsLoading(false);
       }
     };
-
-    fetchProducts();
+  
+    if (searchTerm) {
+      fetchProducts();
+    }
   }, [searchTerm]);
+  
 
   const sortedProducts = products.slice().sort((a, b) => {
     let aValue, bValue;

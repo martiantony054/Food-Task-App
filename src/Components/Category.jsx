@@ -42,7 +42,7 @@ function Category() {
   }, [selectedCategory]);
 
   return (
-    <div className="bg-blue-100 min-h-screen">
+    <div className="bg-blue-100 min-h-screen translate-y-28">
       <header className="bg-white neu-brutal m-4 p-8">
         <h1 className="text-4xl font-bold mb-4">Filter by Category</h1>
         <p className="text-xl">Select a category to filter food products.</p>
